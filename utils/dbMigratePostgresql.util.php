@@ -1,22 +1,18 @@
 <?php
 declare(strict_types=1);
 
-// 1) Composer autoload
 require_once 'vendor/autoload.php';
 
-// 2) Composer bootstrap
 require_once 'bootstrap.php';
 
-// 3) envSetter
 require_once UTILS_PATH . '/envSetter.util.php';
 
-$host = $databases['pgHost'];
-$port = $databases['pgPort'];
-$username = $databases['pgUser'];
-$password = $databases['pgPassword'];
-$dbname = $databases['pgDB'];
+$host = $_ENV['PG_HOST'] ?? 'localhost';
+$port = $_ENV['PG_PORT'] ?? '5432';
+$username = $_ENV['PG_USER'] ?? 'user';
+$password = $_ENV['PG_PASSWORD'] ?? 'password';
+$dbname = $_ENV['PG_DB'] ?? 'taskmeeting';
 
-// ——— Connect to PostgreSQL ———
 $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
 $pdo = new PDO($dsn, $username, $password, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -29,7 +25,6 @@ foreach ([
     'meetings',
     'users',
 ] as $table) {
-    // Use IF EXISTS so it won't error if the table is already gone
     $pdo->exec("DROP TABLE IF EXISTS {$table} CASCADE;");
 }
 
