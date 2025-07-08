@@ -2,15 +2,18 @@
 require_once UTILS_PATH . '/envSetter.util.php';
 
 try {
-    $connectionString = "mongodb://{$databases['mongoHost']}:{$databases['mongoPort']}";
-    $mongo = new MongoDB\Driver\Manager($connectionString);
+    $host = $_ENV['MONGO_HOST'] ?? 'localhost';
+    $port = $_ENV['MONGO_PORT'] ?? '27017';
+    $connectionString = "mongodb://{$host}:{$port}";
 
-    $command = new MongoDB\Driver\Command(["ping" => 1]);
-    $mongo->executeCommand("admin", $command);
+    $connection = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, 1);
 
-    echo "✅ Connected to MongoDB successfully.<br>";
-} catch (MongoDB\Driver\Exception\Exception $e) {
-    echo "❌ MongoDB connection failed: " . $e->getMessage() . "<br>";
+    if ($connection) {
+        echo "✅ Connected to MongoDB successfully";
+        fclose($connection);
+    } else {
+        echo "❌ MongoDB connection failed: {$errstr}";
+    }
 } catch (Exception $e) {
-    echo "❌ MongoDB error: " . $e->getMessage() . "<br>";
+    echo "❌ MongoDB error: " . $e->getMessage();
 }
