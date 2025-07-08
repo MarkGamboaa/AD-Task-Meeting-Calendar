@@ -4,7 +4,6 @@ class Auth
 {
     public static function init()
     {
-        // Session is already started in index.php, no need to start it here
     }
 
     public static function login($username, $password)
@@ -13,11 +12,11 @@ class Auth
 
         require_once UTILS_PATH . '/envSetter.util.php';
 
-        $host = $databases['pgHost'];
-        $port = $databases['pgPort'];
-        $dbUsername = $databases['pgUser'];
-        $dbPassword = $databases['pgPassword'];
-        $dbname = $databases['pgDB'];
+        $host = $_ENV['PG_HOST'] ?? 'localhost';
+        $port = $_ENV['PG_PORT'] ?? '5432';
+        $dbUsername = $_ENV['PG_USER'] ?? 'user';
+        $dbPassword = $_ENV['PG_PASSWORD'] ?? 'password';
+        $dbname = $_ENV['PG_DB'] ?? 'taskmeeting';
 
         try {
             $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
