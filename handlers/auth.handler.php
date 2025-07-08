@@ -1,8 +1,10 @@
 <?php
 require_once '../bootstrap.php';
 require_once UTILS_PATH . '/auth.util.php';
+require_once COMPONENTS_PATH . '/error.component.php';
+require_once COMPONENTS_PATH . '/dashboard.component.php';
+require_once COMPONENTS_PATH . '/dbStatus.component.php';
 
-// Start session before any processing
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,7 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (empty($username) || empty($password)) {
-        echo "❌ Username and password are required";
+        $content = renderError('Username and password are required');
+        $title = 'Login Error';
+        $isHandler = true;
+        include LAYOUTS_PATH . '/main.layout.php';
         exit;
     }
 
@@ -20,28 +25,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($loginResult) {
         $user = Auth::user();
-        ?>
-        <h1>Dashboard</h1>
 
-        <p>Welcome, <?php echo $user['first_name'] . ' ' . $user['last_name']; ?>!</p>
+        ob_start();
 
-        <p>Role: <?php echo $user['role']; ?></p>
+        echo renderDatabaseStatus();
+        echo renderDashboard($user, true);
 
-        <h2>Navigation</h2>
-
-        <button onclick="window.location.href='logout.handler.php'">Logout</button>
-
-        <h2>Database Connection Status</h2>
-
-        <p>✅ PostgreSQL Connection</p>
-        <p>✅ Connected to MongoDB successfully.</p>
-        <?php
+        $content = ob_get_clean();
+        $title = 'Dashboard';
+        $isHandler = true;
+        include LAYOUTS_PATH . '/main.layout.php';
     } else {
-        // Invalid login - redirect back to main page
         header('Location: ../index.php?error=invalid');
         exit;
     }
 } else {
-    echo "❌ Invalid request method";
-    echo '<br><a href="../index.php">Go back to main page</a>';
+    $content = renderError('Invalid request method') . '<br><a href="../index.php">Go back to main page</a>';
+    $title = 'Error';
+    $isHandler = true;
+    include LAYOUTS_PATH . '/main.layout.php';
 }
