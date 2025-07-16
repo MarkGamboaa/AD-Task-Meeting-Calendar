@@ -78,4 +78,45 @@ foreach ($users as $u) {
     ]);
 }
 
+$meetings = require_once DUMMIES_PATH . '/meetings.staticData.php';
+echo "Seeding meetings…\n";
+$stmt = $pdo->prepare("
+    INSERT INTO meetings (title, description, scheduled_at)
+    VALUES (:title, :description, :scheduled_at)
+");
+foreach ($meetings as $m) {
+    $stmt->execute([
+        ':title' => $m['title'],
+        ':description' => $m['description'],
+        ':scheduled_at' => $m['scheduled_at'],
+    ]);
+}
+
+$tasks = require_once DUMMIES_PATH . '/tasks.staticData.php';
+echo "Seeding tasks…\n";
+$stmt = $pdo->prepare("
+    INSERT INTO tasks (title, description, status)
+    VALUES (:title, :description, :status)
+");
+foreach ($tasks as $t) {
+    $stmt->execute([
+        ':title' => $t['title'],
+        ':description' => $t['description'],
+        ':status' => $t['status'],
+    ]);
+}
+
+$meetingUsers = require_once DUMMIES_PATH . '/meeting_users.staticData.php';
+echo "Seeding meeting_users…\n";
+$stmt = $pdo->prepare("
+    INSERT INTO meeting_users (meeting_id, user_id)
+    VALUES (:meeting_id, :user_id)
+");
+foreach ($meetingUsers as $mu) {
+    $stmt->execute([
+        ':meeting_id' => $mu['meeting_id'],
+        ':user_id' => $mu['user_id'],
+    ]);
+}
+
 echo "✅ PostgreSQL seeding complete!\n";
